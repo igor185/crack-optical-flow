@@ -1,6 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os
+import sys
+sys.path.append(".")
 
 import mmcv
 import torch

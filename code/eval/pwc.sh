@@ -1,10 +1,15 @@
-#export CUDA_VISIBLE_DEVICES="0" && python tools/test.py \
-#configs/pwcnet/pwcnet_8x1_slong_flyingchairs_384x448_2.py \
-#checkpoints/pwcnet_8x1_slong_flyingchairs_384x448.pth --eval EPE Fl
-
-export CUDA_VISIBLE_DEVICES="0"
+export CUDA_VISIBLE_DEVICES="1"
 
 python tools/test.py \
-  configs/pwcnet/pwcnet.py \
+  configs/pwcnet/pwcnet_sintel.py \
   ckpt/pwc.pth --eval EPE Fl
+
+python tools/test.py \
+  configs/pwcnet/pwcnet_fly.py \
+  ckpt/pwc.pth --eval EPE Fl
+
+python tools/test.py \
+  configs/pwcnet/pwcnet_kitti.py \
+  ckpt/pwc.pth --eval EPE Fl
+
 

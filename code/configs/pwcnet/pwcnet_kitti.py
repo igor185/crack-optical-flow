@@ -1,7 +1,7 @@
 _base_ = [
-    '../../_base_/datasets/sintel_final_pwcnet_384x768.py',
-    '../../_base_/schedules/pwcnet_ft_300k_schedule.py',
-    '../../_base_/default_runtime.py'
+    '../_base_/datasets/kitti2012_kitti2015_test.py',
+    '../_base_/schedules/pwcnet_plus_750k_schedule.py',
+    '../_base_/default_runtime.py'
 ]
 
 model = dict(
@@ -33,6 +33,7 @@ model = dict(
             q=0.4,
             eps=0.01,
             reduction='sum',
+            resize_flow='upsample',
             weights={
                 'level2': 0.005,
                 'level3': 0.01,
@@ -50,7 +51,3 @@ model = dict(
         layer=['Conv2d', 'ConvTranspose2d'],
         mode='fan_in',
         bias=0))
-
-# Train on FlyingChairs, FlyingThings3D_subset and Sintel,
-# and finetune on Sintel final
-load_from = 'https://download.openmmlab.com/mmflow/pwcnet/pwcnet_ft_4x1_300k_sintel_384x768.pth'  # noqa

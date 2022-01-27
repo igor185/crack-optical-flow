@@ -1,6 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from argparse import ArgumentParser
 from typing import Sequence
+from tqdm import tqdm
+import sys
+sys.path.append(".")
 
 import cv2
 import numpy as np
@@ -17,10 +20,10 @@ except ImportError:
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('video', help='video file')
-    parser.add_argument('config', help='Config file')
-    parser.add_argument('checkpoint', help='Checkpoint file')
-    parser.add_argument('out', help='File to save visualized flow map')
+    parser.add_argument('--video', help='video file')
+    parser.add_argument('--config', help='Config file')
+    parser.add_argument('--checkpoint', help='Checkpoint file')
+    parser.add_argument('--out', help='File to save visualized flow map')
     parser.add_argument(
         '--gt',
         default=None,
@@ -44,7 +47,7 @@ def main(args):
     # get video info
     size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
             int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    fps = 10 # cap.get(cv2.CAP_PROP_FPS)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
     imgs = []
@@ -74,7 +77,7 @@ def main(args):
 
     frame_list = []
 
-    for i in range(len(imgs) - 1):
+    for i in tqdm(range(len(imgs) - 1)):
         img1 = imgs[i]
         img2 = imgs[i + 1]
         # estimate flow
