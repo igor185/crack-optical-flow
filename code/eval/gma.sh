@@ -1,5 +1,3 @@
-export CUDA_VISIBLE_DEVICES="1"
-
 python tools/test.py \
   configs/gma/gma_sintel.py \
   ckpt/gma.pth --eval EPE Fl

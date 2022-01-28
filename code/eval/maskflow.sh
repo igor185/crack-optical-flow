@@ -1,5 +1,3 @@
-export CUDA_VISIBLE_DEVICES="1"
-
 python tools/test.py \
   configs/maskflownet/maskflownet_sintel.py \
   ckpt/maskflownet.pth --eval EPE Fl

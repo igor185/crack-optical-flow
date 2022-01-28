@@ -1,8 +1,11 @@
 # Crack Optical Flow
-This repo is a final project of [winter school](https://apps.ucu.edu.ua/en/machine-learning-research-winter-school/) "How to run an effective machine learning research"
+This repo is a final project of [winter school](https://apps.ucu.edu.ua/en/machine-learning-research-winter-school/) "How to run an effective machine learning research". Code is based on [mmflow repo](https://github.com/open-mmlab/mmflow). 
 
 ## Goal
 Research how stable SOTA approaches to optical flow calculation with noise and adversarial attacks.  
+
+## Installation
+Follow [installation guide](code/docs/en/install.md), [dataset preparation](/code/docs/en/dataset_prepare.md) and download models [ckpt](code/configs)
 
 ## Model comparison without noise
 | Model                         | Trained on                                                      | Sintel Clean EPE / Fl | Sintel Fina EPE / Fl | FlyingChairs EPE / Fl | Kitti 2012 EPE / Fl | Kitti 2015 EPE / Fl | 
@@ -13,7 +16,7 @@ Research how stable SOTA approaches to optical flow calculation with noise and a
 | [RAFT](RAFT.md)               | FlyingChairs, FlyingThing3d, Sintel, KITTI2015, and HD1K.       | 0.73/2.86             | 1.48/5.27            | 1.25/4.3              | 1.26/4.46           | 1.76/6.17           |
 | [GMA](GMA.md)                 | FlyingChairs, FlyingThing3d, Sintel, KITTI2015, and HD1K.       | 0.63/2.62             | 0.94/4.33            | 1.27/4.52             | 1.67/6.62           | 2.78/9.34           |
 
-
+To get same results run `bash code/metrics.sh`
 ## Model samples
 All models [output](https://drive.google.com/drive/folders/1VZjwkBinIB2MSfiGVBuJPCV_Z1r0nwfP?usp=sharing)
 
