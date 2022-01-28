@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from typing import Sequence
 from tqdm import tqdm
 import sys
+
 sys.path.append(".")
 
 import cv2
@@ -21,6 +22,7 @@ except ImportError:
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('--video', help='video file')
+    parser.add_argument('--use-noisy', help='noise', required=False, action='store_true', default=False)
     parser.add_argument('--config', help='Config file')
     parser.add_argument('--checkpoint', help='Checkpoint file')
     parser.add_argument('--out', help='File to save visualized flow map')
@@ -35,7 +37,6 @@ def parse_args():
 
 
 def main(args):
-
     assert args.out[-3:] == 'gif' or args.out[-3:] == 'mp4', \
         f'Output file must be gif and mp4, but got {args.out[-3:]}.'
 
@@ -47,17 +48,28 @@ def main(args):
     # get video info
     size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
             int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    fps = 10 # cap.get(cv2.CAP_PROP_FPS)
+    fps = 10  # cap.get(cv2.CAP_PROP_FPS)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
     imgs = []
+    imgs_noisy = []
+    patch_size = (150, 150)
+    noise = np.clip(np.abs(np.random.normal(0, 255, patch_size[0] * patch_size[1] * 3)), a_min=0, a_max=255).astype(
+        np.int32)
+    noise = noise.reshape((patch_size[0], patch_size[1], 3))
     while (cap.isOpened()):
         # Get frames
         flag, img = cap.read()
         if not flag:
             break
+        h, w = img.shape[:2]
+        x, y = (h - patch_size[0]) // 2, (w - patch_size[1]) // 2
+        img_noisy = img.copy()
+        img_noisy[x:x + patch_size[0], y:y + patch_size[1]] = noise
         imgs.append(img)
-
+        imgs_noisy.append(img_noisy)
+    # if args.use_noisy:
+    #     imgs = imgs_noisy
     gts = []
     if args.gt is not None:
 
@@ -76,19 +88,28 @@ def main(args):
             imgs) - 1, 'Ground truth length doesn\'t match video frames'
 
     frame_list = []
+    frame_list2 = []
 
     for i in tqdm(range(len(imgs) - 1)):
         img1 = imgs[i]
         img2 = imgs[i + 1]
+        img1n = imgs_noisy[i]
+        img2n = imgs_noisy[i+1]
         # estimate flow
         result = inference_model(model, img1, img2)
+        result2 = inference_model(model, img1n, img2n)
         flow_map = visualize_flow(result, None)
+        flow_map2 = visualize_flow(result2, None)
         # visualize_flow return flow map with RGB order
         flow_map = cv2.cvtColor(flow_map, cv2.COLOR_RGB2BGR)
+        flow_map2 = cv2.cvtColor(flow_map2, cv2.COLOR_RGB2BGR)
         if len(gts) > 0:
             frame = np.concatenate((flow_map, gts[i]), axis=1)
+            frame2 = np.concatenate((flow_map2, gts[i]), axis=1)
         else:
             frame = flow_map
+            frame2 = flow_map2
+        frame = np.concatenate([frame, frame2], axis=1)
         frame_list.append(frame)
 
     size = (frame_list[0].shape[1], frame_list[0].shape[0])
