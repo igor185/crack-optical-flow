@@ -34,11 +34,11 @@ All models [output](https://drive.google.com/drive/folders/1VZjwkBinIB2MSfiGVBuJ
 
 test.mp4 - Input video
 
-test_<name>_out.mp4 - flow prediction for <name> net
+test_*name*_out.mp4 - flow prediction for <name> net
 
-test_<name>_out_noisy.mp4 - comparison of predicted flow and flow with noise patch on video
+test_*name*_out_noisy.mp4 - comparison of predicted flow and flow with noise patch on video
 
-broken_<name>.mp4 - optimized noise to maximize difference between clean flow and broken
+broken_*name*.mp4 - optimized noise to maximize difference between clean flow and broken
 
 To get same results run `bash code/video.sh`
 
@@ -46,5 +46,5 @@ To get same results run `bash code/video.sh`
 
 Implementation - `code/optimize_noise.py`
 
-Idea: Take two frames, generate noise, calculate clean flow and flow with broken patch (add noise) and maximize difference between to flow with respect to noise (not image and model).
+Idea: Take two frames, generate noise, calculate clean flow and flow with broken patch (add noise) and maximize difference between two flows with respect to noise (not image and model).
 
