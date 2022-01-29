@@ -63,16 +63,40 @@ def single_gpu_online_evaluation(
     result_metrics = defaultdict(list)
 
     prog_bar = mmcv.ProgressBar(len(data_loader))
+
+    def add_noise(data, return_box=False):
+        data_noisy = data.copy()
+        imgs = data_noisy["imgs"].data[0]
+        h, w = imgs.shape[-2], imgs.shape[-1]
+        hp, wp = int(h * 0.1), int(w * 0.1)
+        noise = np.clip(np.abs(np.random.normal(0, 1, hp * wp * 3)), a_min=0, a_max=1).astype(
+            np.float32)
+        noise = noise.reshape((1, 3, hp, wp))
+        noise = torch.tensor(noise, dtype=torch.float32).squeeze(0)
+        x, y = (h - hp) // 2, (w - wp) // 2
+        box = [x / h, y / w, (x + hp) / h, (y + wp) / w]
+        imgs[0, :3, x:x + hp, y:y + wp] = noise
+        imgs[0, 3:, x:x + hp, y:y + wp] = noise
+        data_noisy["imgs"].data[0] = imgs
+        if return_box:
+            return box
+        return data_noisy
+
+    box = add_noise(next(iter(data_loader)), return_box=True)
+    # if data is not None:
     for data in data_loader:
         with torch.no_grad():
             batch_results = model(test_mode=True, **data)
+            batch_results_noisy = model(test_mode=True, **add_noise(data))
             img_metas = data['img_metas'].data[0]
             batch_flow = []
             batch_flow_gt = []
             batch_valid = []
+            batch_flow_noisy = []
             # a batch of result and a batch of img_metas
             for i in range(len(batch_results)):
                 result = batch_results[i]
+                result_noisy = batch_results_noisy[i]
                 img_meta = img_metas[i]
 
                 # result.keys() is 'flow' or ['flow_fw','flow_bw']
@@ -90,11 +114,12 @@ def single_gpu_online_evaluation(
                         batch_flow_gt.append(img_meta[k + '_gt'])
 
                     batch_flow.append(result[k])
+                    batch_flow_noisy.append(result_noisy[k])
                     batch_valid.append(
                         img_meta.get('valid', np.ones_like(result[k][..., 0])))
 
             batch_results_metrics = eval_metrics(batch_flow, batch_flow_gt,
-                                                 batch_valid, metrics)
+                                                 batch_valid, batch_flow_noisy, box, metrics)
             for i_metric in metrics:
                 result_metrics[i_metric].append(
                     batch_results_metrics[i_metric])

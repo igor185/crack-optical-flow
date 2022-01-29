@@ -178,7 +178,7 @@ class RAFTEncoder(BaseModule):
                     padding=1,
                     bias=True),
                 build_norm_layer(self.norm_cfg, stem_channels // 2)[1],
-                nn.ReLU(inplace=True),
+                nn.ReLU(inplace=False),
                 build_conv_layer(
                     self.conv_cfg,
                     stem_channels // 2,
@@ -188,7 +188,7 @@ class RAFTEncoder(BaseModule):
                     padding=1,
                     bias=True),
                 build_norm_layer(self.norm_cfg, stem_channels // 2)[1],
-                nn.ReLU(inplace=True),
+                nn.ReLU(inplace=False),
                 build_conv_layer(
                     self.conv_cfg,
                     stem_channels // 2,
@@ -198,7 +198,7 @@ class RAFTEncoder(BaseModule):
                     padding=1,
                     bias=True),
                 build_norm_layer(self.norm_cfg, stem_channels)[1],
-                nn.ReLU(inplace=True))
+                nn.ReLU(inplace=False))
         else:
             self.conv1 = build_conv_layer(
                 self.conv_cfg,
@@ -211,7 +211,7 @@ class RAFTEncoder(BaseModule):
             self.norm1_name, norm1 = build_norm_layer(
                 self.norm_cfg, stem_channels, postfix=1)
             self.add_module(self.norm1_name, norm1)
-            self.relu = nn.ReLU(inplace=True)
+            self.relu = nn.ReLU(inplace=False)
 
     def make_stage_plugins(self, plugins: Sequence[dict],
                            stage_idx: int) -> Sequence[dict]:

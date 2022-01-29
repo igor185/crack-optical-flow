@@ -73,6 +73,7 @@ class BasicBlock(BaseModule):
 
             out = self.conv2(out)
             out = self.norm2(out)
+            print(self.relu.inplace)
             out = self.relu(out)
 
             if self.downsample is not None:
@@ -203,7 +204,7 @@ class Bottleneck(BaseModule):
             bias=True)
         self.add_module(self.norm3_name, norm3)
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
         self.downsample = downsample
 
         if self.with_plugins:

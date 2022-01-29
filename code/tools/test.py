@@ -121,6 +121,7 @@ def main():
     else:
         # multi-datasets will be concatenated as one dataset.
         dataset = [build_dataset(cfg.data.test)]
+    cfg.data.test_dataloader["workers_per_gpu"] = 1
     data_loader = [
         build_dataloader(
             _dataset,

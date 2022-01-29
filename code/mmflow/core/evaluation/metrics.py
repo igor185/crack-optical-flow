@@ -8,7 +8,7 @@ Logger = logging.Logger
 
 
 def end_point_error_map(flow_pred: np.ndarray,
-                        flow_gt: np.ndarray) -> np.ndarray:
+                        flow_gt: np.ndarray, box=None) -> np.ndarray:
     """Calculate end point error map.
 
     Args:
@@ -20,12 +20,15 @@ def end_point_error_map(flow_pred: np.ndarray,
     Returns:
         ndarray: End point error map with the shape (H , W).
     """
+    if box is not None:
+        h, w = flow_pred.shape[:2]
+        flow_gt[int(box[0]*h): int(box[2]*h), int(box[1]*w): int(box[3]*w), :] = flow_pred[int(box[0]*h): int(box[2]*h), int(box[1]*w): int(box[3]*w), :]
     return np.sqrt(np.sum((flow_pred - flow_gt)**2, axis=-1))
 
 
 def end_point_error(flow_pred: Sequence[np.ndarray],
                     flow_gt: Sequence[np.ndarray],
-                    valid_gt: Sequence[np.ndarray]) -> float:
+                    valid_gt: Sequence[np.ndarray], noise=False, box=None) -> float:
     """Calculate end point errors between prediction and ground truth.
 
     Args:
@@ -41,7 +44,7 @@ def end_point_error(flow_pred: Sequence[np.ndarray],
     epe_list = []
     assert len(flow_pred) == len(flow_gt)
     for _flow_pred, _flow_gt, _valid_gt in zip(flow_pred, flow_gt, valid_gt):
-        epe_map = end_point_error_map(_flow_pred, _flow_gt)
+        epe_map = end_point_error_map(_flow_pred, _flow_gt, box=box)
         val = _valid_gt.reshape(-1) >= 0.5
         epe_list.append(epe_map.reshape(-1)[val])
 
@@ -88,6 +91,8 @@ def eval_metrics(
         results: Sequence[np.ndarray],
         flow_gt: Sequence[np.ndarray],
         valid_gt: Sequence[np.ndarray],
+        results_noisy: Sequence[np.ndarray],
+        box=None,
         metrics: Union[Sequence[str], str] = ['EPE']) -> Dict[str, np.ndarray]:
     """Calculate evaluation metrics.
 
@@ -102,7 +107,7 @@ def eval_metrics(
     """
     if isinstance(metrics, str):
         metrics = [metrics]
-    allowed_metrics = ['EPE', 'Fl']
+    allowed_metrics = ['EPE', 'Fl', 'EPE-noise']
     if not set(metrics).issubset(set(allowed_metrics)):
         raise KeyError('metrics {} is not supported'.format(metrics))
     ret_metrics = dict()
@@ -110,4 +115,6 @@ def eval_metrics(
         ret_metrics['EPE'] = end_point_error(results, flow_gt, valid_gt)
     if 'Fl' in metrics:
         ret_metrics['Fl'] = optical_flow_outliers(results, flow_gt, valid_gt)
+    if 'EPE-noise' in metrics:
+        ret_metrics['EPE-noise'] = end_point_error(results, results_noisy, valid_gt, box=box)
     return ret_metrics

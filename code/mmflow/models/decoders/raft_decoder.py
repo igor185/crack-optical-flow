@@ -431,7 +431,6 @@ class RAFTDecoder(BaseDecoder):
         upflow_preds = []
         delta_flow = torch.zeros_like(flow)
         for _ in range(self.iters):
-            flow = flow.detach()
             corr = self.corr_lookup(corr_pyramid, flow)
             motion_feat = self.encoder(corr, flow)
             x = torch.cat([cxt_feat, motion_feat], dim=1)
@@ -505,7 +504,7 @@ class RAFTDecoder(BaseDecoder):
 
         flow_result = flow_pred[-1]
         # flow maps with the shape [H, W, 2]
-        flow_result = flow_result.permute(0, 2, 3, 1).cpu().data.numpy()
+        flow_result = flow_result.permute(0, 2, 3, 1).cpu()
         # unravel batch dim
         flow_result = list(flow_result)
         flow_result = [dict(flow=f) for f in flow_result]

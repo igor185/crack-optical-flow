@@ -359,8 +359,7 @@ class FlowNetSDecoder(BaseDecoder):
         flow_result = F.interpolate(
             flow_result, size=(H, W), mode='bilinear', align_corners=False)
         # reshape [2, H, W] to [H, W, 2]
-        flow_result = flow_result.permute(0, 2, 3,
-                                          1).cpu().data.numpy() * self.flow_div
+        flow_result = flow_result.permute(0, 2, 3, 1).cpu() * self.flow_div
         # unravel batch dim
         flow_result = list(flow_result)
         flow_result = [dict(flow=f) for f in flow_result]

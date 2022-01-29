@@ -711,8 +711,7 @@ class NetE(BaseDecoder):
             flow_result, size=(H, W), mode='bilinear', align_corners=False)
 
         # unravel batch dim, reshape [2, H, W] to [H, W, 2], and resize
-        flow_result = flow_result.permute(0, 2, 3,
-                                          1).cpu().data.numpy() * self.flow_div
+        flow_result = flow_result.permute(0, 2, 3, 1).cpu() * self.flow_div
 
         flow_result = list(flow_result)
         flow_result = [dict(flow=f) for f in flow_result]
