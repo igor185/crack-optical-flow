@@ -25,7 +25,26 @@ download models [ckpt](code/configs)
 
 To get same results run `bash code/metrics.sh`
 
-## Model samples
+EPE - l2 between ground truth optical flow and predicted.
 
+Noise - l2 between clean optical flow(no noise patch) and noisy optical flow(with patch of noise).
+
+## Model samples
 All models [output](https://drive.google.com/drive/folders/1VZjwkBinIB2MSfiGVBuJPCV_Z1r0nwfP?usp=sharing)
+
+test.mp4 - Input video
+
+test_<name>_out.mp4 - flow prediction for <name> net
+
+test_<name>_out_noisy.mp4 - comparison of predicted flow and flow with noise patch on video
+
+broken_<name>.mp4 - optimized noise to maximize difference between clean flow and broken
+
+To get same results run `bash code/video.sh`
+
+## Noise optimization
+
+Implementation - `code/optimize_noise.py`
+
+Idea: Take two frames, generate noise, calculate clean flow and flow with broken patch (add noise) and maximize difference between to flow with respect to noise (not image and model).
 
